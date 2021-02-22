@@ -194,6 +194,7 @@ public class Repository {
     public String addToCart(int CustomerId, int OrderId, int ProductId) {
         int result = 0;
         String message = "";
+        ResultSet rs = null;
         try (Connection con = DriverManager.getConnection(p.getProperty("connectionString"),
                 p.getProperty("name"), p.getProperty("password"));
              CallableStatement stmt = con.prepareCall("call AddToCart(?,?,?);")) {
@@ -202,6 +203,12 @@ public class Repository {
             stmt.setInt(2,OrderId);
             stmt.setInt(3,ProductId);
             result = stmt.executeUpdate();
+
+            rs = stmt.getResultSet();
+            while (rs != null && rs.next()){
+                message = rs.getString("error");
+                System.out.println(message);
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -227,13 +234,18 @@ public class Repository {
             stmt.setInt(4,productID);
 
             result = stmt.executeUpdate();
+            rs = stmt.getResultSet();
+
+            while (rs != null && rs.next()){
+                message = rs.getString("error");
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         if(result == -1){
-            return "error";
+            return message;
         }
         else return "succes in added a new review";
     }
@@ -275,8 +287,6 @@ public class Repository {
                     else
                         System.out.println("Produkten har inga omdömmen");
                 }
-
-
 
         } catch (Exception e) {
             e.printStackTrace();
