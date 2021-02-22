@@ -192,7 +192,8 @@ public class Repository {
     }
 
     public String addToCart(int CustomerId, int OrderId, int ProductId) {
-        ResultSet rs = null;
+        int result = 0;
+        String message = "";
         try (Connection con = DriverManager.getConnection(p.getProperty("connectionString"),
                 p.getProperty("name"), p.getProperty("password"));
              CallableStatement stmt = con.prepareCall("call AddToCart(?,?,?);")) {
@@ -200,16 +201,22 @@ public class Repository {
             stmt.setInt(1,CustomerId);
             stmt.setInt(2,OrderId);
             stmt.setInt(3,ProductId);
-            rs = stmt.executeQuery();
+            result = stmt.executeUpdate();
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return "succes in added a new order";
+
+        if(result == -1){
+            return message;
+        }
+        else return "succes in added a new order";
     }
 
     public String Rate(int gradeID, String aComment, int customerID, int productID) {
         ResultSet rs = null;
+        String message = "";
+        int result = 0;
         try (Connection con = DriverManager.getConnection(p.getProperty("connectionString"),
                 p.getProperty("name"), p.getProperty("password"));
              CallableStatement stmt = con.prepareCall("call Rate(?,?,?,?);")) {
@@ -218,12 +225,17 @@ public class Repository {
             stmt.setString(2,aComment);
             stmt.setInt(3,customerID);
             stmt.setInt(4,productID);
-            rs = stmt.executeQuery();
+
+            result = stmt.executeUpdate();
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return "succes in added a new review";
+
+        if(result == -1){
+            return "error";
+        }
+        else return "succes in added a new review";
     }
 
     public void viewReviewForAProduct(int ProductId) {
