@@ -3,6 +3,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 /**
  * Created by Hanna Edlund
@@ -88,11 +89,120 @@ public class Repository {
         return orderID;
     }
 
-    public List<String> getProductsFromOrder(int orderID){
-        List<String> products = new ArrayList<>();
+    public Products getProductByID(int productID){
+        Products prod = new Products();
         try (Connection con = DriverManager.getConnection(p.getProperty("connectionString"),
                 p.getProperty("name"), p.getProperty("password"));
-             PreparedStatement stmt = con.prepareStatement("select name as nu from products inner join order_details on product_id = products.id where order_id = ?;")) {
+             PreparedStatement stmt = con.prepareStatement("select * from products where id = ?")){
+
+            stmt.setInt(1,productID);
+            stmt.executeQuery();
+            ResultSet rs = null;
+
+            while (rs != null && rs.next()){
+                Sizes size = getSizeByProductId(productID);
+                Colors color = getColorByProductId(productID);
+                Brands brand = getBrandByProductId(productID);
+
+                prod = new Products(
+                        rs.getInt("id"),
+                        rs.getString("name"),
+                        size,
+                        color,
+                        brand,
+                        rs.getInt("price"),
+                        rs.getInt("saldo"));
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return prod;
+    }
+
+    public Cities getCityByID(int cityID){
+        Cities city = new Cities();
+        try (Connection con = DriverManager.getConnection(p.getProperty("connectionString"),
+                p.getProperty("name"), p.getProperty("password"));
+             PreparedStatement stmt = con.prepareStatement("select * from cities where id = ?")) {
+
+            stmt.setInt(1, cityID);
+            stmt.executeQuery();
+
+            ResultSet rs = null;
+
+            while (rs.next()) {
+                city = new Cities(rs.getInt("id"), rs.getString("city"));
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return city;
+    }
+
+    public Customers getCustomerById(int customerID){
+        Customers customer = new Customers();
+        try (Connection con = DriverManager.getConnection(p.getProperty("connectionString"),
+                p.getProperty("name"), p.getProperty("password"));
+             PreparedStatement stmt = con.prepareStatement("select * from customers where id = ?")){
+
+            stmt.setInt(1,customerID);
+            stmt.executeQuery();
+
+            ResultSet rs = null;
+
+            while (rs.next()){
+                int cityID = rs.getInt("city");
+                Cities city = getCityByID(cityID);
+                customer = new Customers(
+                        rs.getInt("id"),
+                        rs.getString("firstname"),
+                        rs.getString("lastname"),
+                        city,
+                        rs.getString("password")
+                );
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return customer;
+    }
+
+    public Orders getOrderByID(int orderID){
+        Orders ord = new Orders();
+        try (Connection con = DriverManager.getConnection(p.getProperty("connectionString"),
+                p.getProperty("name"), p.getProperty("password"));
+             PreparedStatement stmt = con.prepareStatement("select * from orders where id = ?")){
+
+            stmt.setInt(1,orderID);
+            stmt.executeQuery();
+            ResultSet rs = null;
+
+            while (rs != null && rs.next()){
+                int customerID = rs.getInt("customer_id");
+                Customers customer = getCustomerById(customerID);
+
+                ord = new Orders(
+                        rs.getInt("id"),
+                        rs.getDate("date"),
+                        customer
+                        );
+            }
+
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return ord;
+    }
+
+    public List<Order_Details> getProductsFromOrder(int orderID){
+        List<Order_Details> productsOrders = new ArrayList<>();
+        try (Connection con = DriverManager.getConnection(p.getProperty("connectionString"),
+                p.getProperty("name"), p.getProperty("password"));
+             PreparedStatement stmt = con.prepareStatement(
+                     "select order_details.id as odId, products.id as pId, order_details.amount as amount from products inner join order_details on product_id = products.id where order_id = ?;")) {
 
             stmt.setInt(1, orderID);
             stmt.executeQuery();
@@ -100,20 +210,32 @@ public class Repository {
             rs = stmt.executeQuery();
 
             while (rs.next()){
-                products.add(rs.getString("nu"));
+                int productID = rs.getInt("pId");
+                Orders order = getOrderByID(orderID);
+                Products product = getProductByID(productID);
+
+
+                productsOrders.add(new Order_Details(
+                        rs.getInt("odId"),
+                        order,
+                        product,
+                        rs.getInt("amount"))
+                );
             }
         }catch (Exception e){
             e.printStackTrace();
             System.out.println("Error");
         }
-        return products;
+        return productsOrders;
     }
 
-    public List<String> getlistOfProductsDependingOnSaldo(int saldo){
-        List <String> products = new ArrayList<>();
+
+    public List<Products> getlistOfProductsDependingOnSaldo(int saldo){
+         List <Products> productsDependingOnSaldoList = new ArrayList<>();
+
         try (Connection con = DriverManager.getConnection(p.getProperty("connectionString"),
                 p.getProperty("name"), p.getProperty("password"));
-             PreparedStatement stmt = con.prepareStatement("select name as nu from products where saldo >= ?;")) {
+             PreparedStatement stmt = con.prepareStatement("select * from products where saldo >= ?;")) {
 
             stmt.setInt(1, saldo);
             stmt.executeQuery();
@@ -122,13 +244,26 @@ public class Repository {
             rs = stmt.executeQuery();
 
             while (rs.next()){
-                products.add(rs.getString("nu"));
+                int productID = rs.getInt("id");
+                Sizes size = getSizeByProductId(productID);
+                Colors color = getColorByProductId(productID);
+                Brands brand = getBrandByProductId(productID);
+
+                productsDependingOnSaldoList.add(new Products(
+                        rs.getInt("id"),
+                        rs.getString("name"),
+                        size,
+                        color,
+                        brand,
+                        rs.getInt("price"),
+                        rs.getInt("saldo")));
             }
+
         }catch (Exception e){
             e.printStackTrace();
             System.out.println("Error");
         }
-        return products;
+        return productsDependingOnSaldoList;
     }
 
     public List<String> getlistOfGrades(){
@@ -292,4 +427,77 @@ public class Repository {
             e.printStackTrace();
         }
     }
+
+    public Sizes getSizeByProductId(int productID){
+        Sizes size = new Sizes();
+        ResultSet rs = null;
+
+        try (Connection con = DriverManager.getConnection(p.getProperty("connectionString"),
+                p.getProperty("name"),
+                p.getProperty("password"));
+             PreparedStatement stmt = con.prepareStatement(
+                     "select sizes.id, sizes.size from sizes inner join products on products.size_id = sizes.id where products.id = ?")){
+
+            stmt.setInt(1, productID);
+            rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                size = new Sizes(
+                        rs.getInt("id"),rs.getInt("size"));
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        return size;
+    }
+
+    public Colors getColorByProductId(int productID){
+        Colors color = new Colors();
+        ResultSet rs = null;
+
+        try (Connection con = DriverManager.getConnection(p.getProperty("connectionString"),
+                p.getProperty("name"),
+                p.getProperty("password"));
+             PreparedStatement stmt = con.prepareStatement(
+                     "select colors.id, colors.color from colors inner join products on products.color_id = colors.id where products.id = ?")){
+
+            stmt.setInt(1, productID);
+            rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                color = new Colors(
+                        rs.getInt("id"),rs.getString("color"));
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        return color;
+    }
+
+    public Brands getBrandByProductId(int productID){
+        Brands brand = new Brands();
+        ResultSet rs = null;
+
+        try (Connection con = DriverManager.getConnection(p.getProperty("connectionString"),
+                p.getProperty("name"),
+                p.getProperty("password"));
+             PreparedStatement stmt = con.prepareStatement(
+                     "select brands.id, brands.brand from brands inner join products on products.brand_id = brands.id where products.id = ?")){
+
+            stmt.setInt(1, productID);
+            rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                brand = new Brands(
+                        rs.getInt("id"),rs.getString("brand"));
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        return brand;
+    }
+
 }

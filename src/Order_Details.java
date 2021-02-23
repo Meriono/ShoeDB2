@@ -48,4 +48,12 @@ public class Order_Details {
     public void setAmount(int amount) {
         this.amount = amount;
     }
+
+    @Override
+    public String toString() {
+        return "Order_Details{" +
+                ", product=" + "product" +
+                ", amount=" + amount +
+                '}';
+    }
 }

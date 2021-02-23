@@ -26,6 +26,8 @@ public class Products {
         this.saldo = saldo;
     }
 
+    public Products(){}
+
     public int getId() {
         return id;
     }

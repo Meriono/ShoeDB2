@@ -116,7 +116,7 @@ public class Testing {
 
     private void getAllProductsFromOrder(){
         orderID = r.getOrderID(datumOfOrder);
-        System.out.println(r.getProductsFromOrder(orderID));
+        System.out.println(r.getProductsFromOrder(orderID).toString());
     }
 
     public void addToCart(){

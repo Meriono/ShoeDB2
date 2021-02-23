@@ -17,6 +17,7 @@ public class Orders {
         this.datum = datum;
         this.customer = customer;
     }
+    public Orders(){}
 
     public int getId() {
         return id;
