@@ -89,7 +89,6 @@ public class Repository {
         return orderID;
     }
 
-
     public Products getProductByOrder_detailsID(int orderDetailsID){
         Products product = new Products();
         ResultSet rs = null;
@@ -124,8 +123,6 @@ public class Repository {
         return product;
     }
 
-
-
     public Cities getCityByCustomerID(int customerID){
         Cities city = new Cities();
         ResultSet rs = null;
@@ -136,8 +133,6 @@ public class Repository {
             stmt.setInt(1, customerID);
             rs = stmt.executeQuery();
 
-
-
             while (rs.next()) {
                 city = new Cities(rs.getInt("id"), rs.getString("city"));
             }
@@ -146,8 +141,6 @@ public class Repository {
         }
         return city;
     }
-
-
 
     public Customers getCustomerByOrderId(int orderID){
         Customers customer = new Customers();
@@ -179,8 +172,6 @@ public class Repository {
 
         return customer;
     }
-
-
 
     public Orders getOrderByOrder_detailsID(int orderDetailsID){
         Orders order = new Orders();
@@ -245,7 +236,6 @@ public class Repository {
             System.out.println((order_details.getProduct().getName()+ " | Färg: "+ order_details.getProduct().getColor().getColor() + " | Storlek: "+ order_details.getProduct().getSize().getSize() + " | Märke: " + order_details.getProduct().getBrand().getBrand() + " | Antal: "+ order_details.getAmount()));
         });
     }
-
 
     public void getlistOfProductsDependingOnSaldo(int saldo){
          List <Products> productsDependingOnSaldoList = new ArrayList<>();
@@ -527,5 +517,4 @@ public class Repository {
         }
         return brand;
     }
-
 }
