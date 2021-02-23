@@ -89,22 +89,26 @@ public class Repository {
         return orderID;
     }
 
-    public Products getProductByID(int productID){
-        Products prod = new Products();
+
+    public Products getProductByOrder_detailsID(int orderDetailsID){
+        Products product = new Products();
+        ResultSet rs = null;
         try (Connection con = DriverManager.getConnection(p.getProperty("connectionString"),
                 p.getProperty("name"), p.getProperty("password"));
-             PreparedStatement stmt = con.prepareStatement("select * from products where id = ?")){
+             PreparedStatement stmt = con.prepareStatement(
+                     "select products.id, products.name, products.price, products.saldo from products inner join order_details on order_details.product_id = products.id where order_details.id = ?")){
 
-            stmt.setInt(1,productID);
-            stmt.executeQuery();
-            ResultSet rs = null;
+            stmt.setInt(1,orderDetailsID);
+            rs = stmt.executeQuery();
 
-            while (rs != null && rs.next()){
+
+            while (rs.next()){
+                int productID = rs.getInt("id");
                 Sizes size = getSizeByProductId(productID);
                 Colors color = getColorByProductId(productID);
                 Brands brand = getBrandByProductId(productID);
 
-                prod = new Products(
+                product = new Products(
                         rs.getInt("id"),
                         rs.getString("name"),
                         size,
@@ -117,19 +121,22 @@ public class Repository {
         }catch (Exception e){
             e.printStackTrace();
         }
-        return prod;
+        return product;
     }
 
-    public Cities getCityByID(int cityID){
+
+
+    public Cities getCityByCustomerID(int customerID){
         Cities city = new Cities();
+        ResultSet rs = null;
         try (Connection con = DriverManager.getConnection(p.getProperty("connectionString"),
                 p.getProperty("name"), p.getProperty("password"));
-             PreparedStatement stmt = con.prepareStatement("select * from cities where id = ?")) {
+             PreparedStatement stmt = con.prepareStatement("select cities.id, cities.city from cities inner join customers on customers.city_id = cities.id where customers.id = ?")) {
 
-            stmt.setInt(1, cityID);
-            stmt.executeQuery();
+            stmt.setInt(1, customerID);
+            rs = stmt.executeQuery();
 
-            ResultSet rs = null;
+
 
             while (rs.next()) {
                 city = new Cities(rs.getInt("id"), rs.getString("city"));
@@ -140,20 +147,24 @@ public class Repository {
         return city;
     }
 
-    public Customers getCustomerById(int customerID){
+
+
+    public Customers getCustomerByOrderId(int orderID){
         Customers customer = new Customers();
+        ResultSet rs = null;
         try (Connection con = DriverManager.getConnection(p.getProperty("connectionString"),
                 p.getProperty("name"), p.getProperty("password"));
-             PreparedStatement stmt = con.prepareStatement("select * from customers where id = ?")){
+             PreparedStatement stmt = con.prepareStatement(
+                     "select customers.id, customers.firstname, customers.lastname, customers.password from customers inner join orders on orders.customer_id = customers.id where orders.id = ?")){
 
-            stmt.setInt(1,customerID);
-            stmt.executeQuery();
+            stmt.setInt(1,orderID);
+            rs = stmt.executeQuery();
 
-            ResultSet rs = null;
+
 
             while (rs.next()){
-                int cityID = rs.getInt("city");
-                Cities city = getCityByID(cityID);
+                int customerID = rs.getInt("id");
+                Cities city = getCityByCustomerID(customerID);
                 customer = new Customers(
                         rs.getInt("id"),
                         rs.getString("firstname"),
@@ -169,50 +180,53 @@ public class Repository {
         return customer;
     }
 
-    public Orders getOrderByID(int orderID){
-        Orders ord = new Orders();
+
+
+    public Orders getOrderByOrder_detailsID(int orderDetailsID){
+        Orders order = new Orders();
+        ResultSet rs = null;
         try (Connection con = DriverManager.getConnection(p.getProperty("connectionString"),
                 p.getProperty("name"), p.getProperty("password"));
-             PreparedStatement stmt = con.prepareStatement("select * from orders where id = ?")){
+             PreparedStatement stmt = con.prepareStatement(
+                     "select orders.id, orders.datum from orders inner join order_details on order_details.order_id = orders.id where order_details.id = ?")){
 
-            stmt.setInt(1,orderID);
-            stmt.executeQuery();
-            ResultSet rs = null;
+            stmt.setInt(1,orderDetailsID);
+            rs = stmt.executeQuery();
 
-            while (rs != null && rs.next()){
-                int customerID = rs.getInt("customer_id");
-                Customers customer = getCustomerById(customerID);
+            while (rs.next()){
+                int orderID = rs.getInt("orders.id");
+                Customers customer = getCustomerByOrderId(orderID);
 
-                ord = new Orders(
+                order = new Orders(
                         rs.getInt("id"),
-                        rs.getDate("date"),
+                        rs.getDate("datum"),
                         customer
                         );
             }
 
-
         }catch (Exception e){
             e.printStackTrace();
         }
-        return ord;
+        return order;
     }
 
     public void getProductsFromOrder(int orderID){
+        ResultSet rs = null;
         List<Order_Details> productsOrders = new ArrayList<>();
         try (Connection con = DriverManager.getConnection(p.getProperty("connectionString"),
                 p.getProperty("name"), p.getProperty("password"));
              PreparedStatement stmt = con.prepareStatement(
-                     "select order_details.id as odId, products.id as pId, order_details.amount as amount from products inner join order_details on product_id = products.id where order_id = ?;")) {
+                     "Select order_details.id as odId, order_details.amount from orders inner join order_details on order_details.order_id = orders.id where orders.id = ?")) {
 
             stmt.setInt(1, orderID);
             stmt.executeQuery();
-            ResultSet rs = null;
+
             rs = stmt.executeQuery();
 
             while (rs.next()){
-                int productID = rs.getInt("pId");
-                Orders order = getOrderByID(orderID);
-                Products product = getProductByID(productID);
+                int order_detailID = rs.getInt("odId");
+                Orders order = getOrderByOrder_detailsID(order_detailID);
+                Products product = getProductByOrder_detailsID(order_detailID);
 
 
                 productsOrders.add(new Order_Details(
@@ -228,14 +242,7 @@ public class Repository {
         }
 
         productsOrders.forEach(order_details -> {
-
-                System.out.println("Order_Details{" +
-                        ", product=" + order_details.getProduct().getName() +
-                        ", färg:=" + order_details.getProduct().getColor() +
-                        ", storlek:=" + order_details.getProduct().getSize() +
-                        ", märke:=" + order_details.getProduct().getBrand() +
-                        ", amount=" + order_details.getAmount());
-
+            System.out.println((order_details.getProduct().getName()+ " | Färg: "+ order_details.getProduct().getColor().getColor() + " | Storlek: "+ order_details.getProduct().getSize().getSize() + " | Märke: " + order_details.getProduct().getBrand().getBrand() + " | Antal: "+ order_details.getAmount()));
         });
     }
 
