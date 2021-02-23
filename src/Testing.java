@@ -36,7 +36,7 @@ public class Testing {
         System.out.println("Vill du se produkter i en beställning? y/n");
         if(sc.nextLine().equalsIgnoreCase("y")){
             listOfOrders = r.getUsersOrders(customerID);
-            amountOfOrders = r.getUsersOrders(customerID).size();
+            amountOfOrders = listOfOrders.size();
         }
 
 
@@ -126,7 +126,7 @@ public class Testing {
 
     public void selectProduct(int saldo){
         do{
-            System.out.println("Välj en av följande produkter? \n " + r.getlistOfProductsDependingOnSaldo(saldo));
+            System.out.println("Välj en av följande produkter? \n " + r.getlistOfProductsDependingOnSaldo(saldo).toString());
             String answer = sc.nextLine();
             productID = r.getProductID(answer);
         } while (!isValidId(productID));
