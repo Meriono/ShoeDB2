@@ -197,7 +197,7 @@ public class Repository {
         return ord;
     }
 
-    public List<Order_Details> getProductsFromOrder(int orderID){
+    public void getProductsFromOrder(int orderID){
         List<Order_Details> productsOrders = new ArrayList<>();
         try (Connection con = DriverManager.getConnection(p.getProperty("connectionString"),
                 p.getProperty("name"), p.getProperty("password"));
@@ -226,11 +226,21 @@ public class Repository {
             e.printStackTrace();
             System.out.println("Error");
         }
-        return productsOrders;
+
+        productsOrders.forEach(order_details -> {
+
+                System.out.println("Order_Details{" +
+                        ", product=" + order_details.getProduct().getName() +
+                        ", färg:=" + order_details.getProduct().getColor() +
+                        ", storlek:=" + order_details.getProduct().getSize() +
+                        ", märke:=" + order_details.getProduct().getBrand() +
+                        ", amount=" + order_details.getAmount());
+
+        });
     }
 
 
-    public List<Products> getlistOfProductsDependingOnSaldo(int saldo){
+    public void getlistOfProductsDependingOnSaldo(int saldo){
          List <Products> productsDependingOnSaldoList = new ArrayList<>();
 
         try (Connection con = DriverManager.getConnection(p.getProperty("connectionString"),
@@ -263,7 +273,18 @@ public class Repository {
             e.printStackTrace();
             System.out.println("Error");
         }
-        return productsDependingOnSaldoList;
+
+        productsDependingOnSaldoList.forEach(products -> {
+
+            if (saldo >= 1){
+                System.out.println((products.getName()+ " | Färg: "+ products.getColor().getColor() + " | Storlek: "+ products.getSize().getSize() + " | Märke: " + products.getBrand().getBrand() + " | Saldo: "+ products.getSaldo()));
+            }
+            else {
+                System.out.println(products.getName() + " | Färg: " + products.getColor().getColor() + " | Märke: " + products.getBrand().getBrand());
+
+            }
+
+        });
     }
 
     public List<String> getlistOfGrades(){

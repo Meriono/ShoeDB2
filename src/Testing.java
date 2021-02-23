@@ -116,7 +116,7 @@ public class Testing {
 
     private void getAllProductsFromOrder(){
         orderID = r.getOrderID(datumOfOrder);
-        System.out.println(r.getProductsFromOrder(orderID).toString());
+        r.getProductsFromOrder(orderID);
     }
 
     public void addToCart(){
@@ -126,7 +126,8 @@ public class Testing {
 
     public void selectProduct(int saldo){
         do{
-            System.out.println("Välj en av följande produkter? \n " + r.getlistOfProductsDependingOnSaldo(saldo).toString());
+            System.out.println("Välj en av följande produkter? \n ");
+            r.getlistOfProductsDependingOnSaldo(saldo);
             String answer = sc.nextLine();
             productID = r.getProductID(answer);
         } while (!isValidId(productID));

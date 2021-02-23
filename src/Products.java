@@ -83,13 +83,4 @@ public class Products {
     public void setSaldo(int saldo) {
         this.saldo = saldo;
     }
-
-    @Override
-    public String toString() {
-
-            return (getName()+ " | Färg: "+ color.getColor() + " | Storlek: "+ size.getSize() + " | Märke: " + brand.getBrand() + " | Saldo: "+ getSaldo() +"\n");
-
-           // return (getName()+ " | Färg: "+ color.getColor() + " | Märke: " + brand.getBrand() + "\n");
-
-    }
 }

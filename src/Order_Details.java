@@ -52,8 +52,10 @@ public class Order_Details {
     @Override
     public String toString() {
         return "Order_Details{" +
-                ", product=" + "product" +
-                ", amount=" + amount +
-                '}';
+                ", product=" + product.getName() +
+                ", färg:=" + getProduct().getColor() +
+                ", storlek:=" + product.getSize() +
+                ", märke:=" + getProduct().getBrand() +
+                ", amount=" + amount + "\n";
     }
 }
