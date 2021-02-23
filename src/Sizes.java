@@ -14,6 +14,8 @@ public class Sizes {
         this.size = size;
     }
 
+    public Sizes(){}
+
     public int getId() {
         return id;
     }

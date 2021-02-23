@@ -14,6 +14,10 @@ public class Colors {
         this.color = color;
     }
 
+    public Colors(){
+
+    }
+
     public int getId() {
         return id;
     }

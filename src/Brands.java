@@ -14,6 +14,10 @@ public class Brands {
         this.brand = brand;
     }
 
+    public Brands(){
+
+    }
+
     public int getId() {
         return id;
     }
