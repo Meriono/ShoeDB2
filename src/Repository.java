@@ -68,6 +68,51 @@ public class Repository {
         return orderDatum;
     }
 
+    public int getSizeID(String sizeInString){
+        int sizeID = 0;
+        int sizeToInt = Integer.parseInt(sizeInString);
+        try (Connection con = DriverManager.getConnection(p.getProperty("connectionString"),
+                p.getProperty("name"), p.getProperty("password"));
+             PreparedStatement stmt = con.prepareStatement("select id from sizes where size = ?;")) {
+
+            stmt.setInt(1, sizeToInt);
+            stmt.executeQuery();
+            ResultSet rs = null;
+            rs = stmt.executeQuery();
+
+            while (rs.next()){
+                sizeID = rs.getInt("id");
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            System.out.println("Error");
+        }
+        return sizeID;
+    }
+
+
+    public int getColorID(String colorName){
+        int colorID = 0;
+        try (Connection con = DriverManager.getConnection(p.getProperty("connectionString"),
+                p.getProperty("name"), p.getProperty("password"));
+             PreparedStatement stmt = con.prepareStatement("select id from colors where color = ?;")) {
+
+            stmt.setString(1, colorName);
+            stmt.executeQuery();
+            ResultSet rs = null;
+            rs = stmt.executeQuery();
+
+            while (rs.next()){
+                colorID = rs.getInt("id");
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            System.out.println("Error");
+        }
+        return colorID;
+    }
+
+
     public int getOrderID(String datumForAnOrder){
         int orderID = 0;
         try (Connection con = DriverManager.getConnection(p.getProperty("connectionString"),
@@ -236,6 +281,93 @@ public class Repository {
             System.out.println((order_details.getProduct().getName()+ " | Färg: "+ order_details.getProduct().getColor().getColor() + " | Storlek: "+ order_details.getProduct().getSize().getSize() + " | Märke: " + order_details.getProduct().getBrand().getBrand() + " | Antal: "+ order_details.getAmount()));
         });
     }
+
+    public void filterProductsOnColor(int colorID, int saldo){
+        List <Products> filterListOnColor = new ArrayList<>();
+
+        try (Connection con = DriverManager.getConnection(p.getProperty("connectionString"),
+                p.getProperty("name"), p.getProperty("password"));
+             PreparedStatement stmt = con.prepareStatement("select * from products inner join colors on colors.id = products.color_id where saldo >= ? AND colors.id = ?;")) {
+
+            stmt.setInt(1, saldo);
+            stmt.setInt(2, colorID);
+            stmt.executeQuery();
+
+            ResultSet rs = null;
+            rs = stmt.executeQuery();
+
+            while (rs.next()){
+                int productID = rs.getInt("id");
+                Sizes size = getSizeByProductId(productID);
+                Colors color = getColorByProductId(productID);
+                Brands brand = getBrandByProductId(productID);
+
+                filterListOnColor.add(new Products(
+                        rs.getInt("id"),
+                        rs.getString("name"),
+                        size,
+                        color,
+                        brand,
+                        rs.getInt("price"),
+                        rs.getInt("saldo")));
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
+            System.out.println("Error");
+        }
+
+        filterListOnColor.forEach(products -> {
+
+                System.out.println((products.getName()+ " | Färg: "+ products.getColor().getColor() + " | Storlek: "+ products.getSize().getSize() + " | Märke: " + products.getBrand().getBrand() + " | Saldo: "+ products.getSaldo()));
+
+        });
+    }
+
+
+    public void filterProductsOnColorAndSize(int colorID, int saldo, int sizeID){
+        List <Products> filterList = new ArrayList<>();
+
+        try (Connection con = DriverManager.getConnection(p.getProperty("connectionString"),
+                p.getProperty("name"), p.getProperty("password"));
+             PreparedStatement stmt = con.prepareStatement("select * from products inner join colors on colors.id = products.color_id inner join sizes on sizes.id = products.size_id where saldo >= ? AND colors.id = ? AND sizes.id = ?;")) {
+
+            stmt.setInt(1, saldo);
+            stmt.setInt(2, colorID);
+            stmt.setInt(3,sizeID);
+            stmt.executeQuery();
+
+            ResultSet rs = null;
+            rs = stmt.executeQuery();
+
+            while (rs.next()){
+                int productID = rs.getInt("id");
+                Sizes size = getSizeByProductId(productID);
+                Colors color = getColorByProductId(productID);
+                Brands brand = getBrandByProductId(productID);
+
+                filterList.add(new Products(
+                        rs.getInt("id"),
+                        rs.getString("name"),
+                        size,
+                        color,
+                        brand,
+                        rs.getInt("price"),
+                        rs.getInt("saldo")));
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
+            System.out.println("Error");
+        }
+
+        filterList.forEach(products -> {
+
+            System.out.println((products.getName()+ " | Färg: "+ products.getColor().getColor() + " | Storlek: "+ products.getSize().getSize() + " | Märke: " + products.getBrand().getBrand() + " | Saldo: "+ products.getSaldo()));
+
+        });
+    }
+
 
     public void getlistOfProductsDependingOnSaldo(int saldo){
          List <Products> productsDependingOnSaldoList = new ArrayList<>();

@@ -18,6 +18,8 @@ public class Testing {
     int orderID = 0;
     int productID;
     int gradeID;
+    int colorID;
+    int sizeID;
     String datumOfOrder;
     String aComment;
     List<String> listOfOrders = new ArrayList<>();
@@ -126,8 +128,23 @@ public class Testing {
 
     public void selectProduct(int saldo){
         do{
-            System.out.println("Välj en av följande produkter? \n ");
             r.getlistOfProductsDependingOnSaldo(saldo);
+
+            do{
+                System.out.println("\nFiltrera sökningen på färg, skriv in färgen");
+                String answer = sc.nextLine();
+                colorID = r.getColorID(answer);
+            }while (!(isValidId(colorID)));
+            r.filterProductsOnColor(colorID,saldo);
+
+            do{
+                System.out.println("\nFiltrera sökningen på storlek, skriv in storlek");
+                String answer = sc.nextLine();
+                sizeID = r.getSizeID(answer);
+            }while (!(isValidId(sizeID)));
+
+            r.filterProductsOnColorAndSize(colorID,saldo,sizeID);
+            System.out.println("Välj en av följande produkter? \n ");
             String answer = sc.nextLine();
             productID = r.getProductID(answer);
         } while (!isValidId(productID));
