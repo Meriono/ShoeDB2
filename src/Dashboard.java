@@ -99,11 +99,6 @@ public class Dashboard {
             }
             r.Rate(gradeID,aComment,customerID,productID);
         }
-
-        //Vill du filtrera sökningen efter produkter?
-        //Om ja, färg, märke eller storlek?
-        // skriv in x
-        //Skriv in namnet på produkten du vill lägga till i beställningen
     }
 
     private boolean isValidId(int id){
@@ -145,24 +140,25 @@ public class Dashboard {
     public void selectProduct(int saldo){
         rProduct.getlistOfProductsDependingOnSaldo(saldo);
 
-        do{
-            System.out.println("\nFiltrera sökningen på färg, skriv in färgen");
-            String answer = sc.nextLine();
-            colorID = rID.getColorID(answer);
-        }while (!(isValidId(colorID)));
-        filterList = rProduct.filterProductsOnColor(colorID,saldo);
-
-        if(filterList.size() > 2){
+        if(saldo > 0){
             do{
-                System.out.println("\nFiltrera sökningen på storlek, skriv in storlek");
+                System.out.println("\nFiltrera sökningen på färg, skriv in färgen");
                 String answer = sc.nextLine();
-                sizeID = rID.getSizeID(answer);
-            }while (!(isValidSizeIDForFilterColor(sizeID)));
+                colorID = rID.getColorID(answer);
+            }while (!(isValidId(colorID)));
+            filterList = rProduct.filterProductsOnColor(colorID,saldo);
+
+            if(filterList.size() > 2){
+                do{
+                    System.out.println("\nFiltrera sökningen på storlek, skriv in storlek");
+                    String answer = sc.nextLine();
+                    sizeID = rID.getSizeID(answer);
+                }while (!(isValidSizeIDForFilterColor(sizeID)));
+            }
+            rProduct.filterProductsOnColorAndSize(colorID,saldo,sizeID);
         }
 
-
         do{
-            rProduct.filterProductsOnColorAndSize(colorID,saldo,sizeID);
             System.out.println("\nVälj en av produkterna, skriv in namnet");
             String answer = sc.nextLine();
             productID = rID.getProductID(answer);
