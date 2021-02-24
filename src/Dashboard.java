@@ -1,3 +1,6 @@
+import Repository.*;
+import Tables.*;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -8,8 +11,10 @@ import java.util.Scanner;
  * Time: 14:27
  * Project: ShoeDB2
  */
-public class Testing {
+public class Dashboard {
     Repository r = new Repository();
+    getID_Repository rID = new getID_Repository();
+    getProduct_Repository rProduct = new getProduct_Repository();
     Scanner sc = new Scanner(System.in);
     String lastname;
     String password;
@@ -26,13 +31,13 @@ public class Testing {
     List<Products> filterList = new ArrayList<>();
 
 
-    public Testing() {
+    public Dashboard() {
         do{
             System.out.println("Skriv in ditt efternamn:");
             lastname = sc.nextLine();
             System.out.println("Skriv in ditt lösenord:");
             password = sc.nextLine();
-            customerID = r.getUsersID(lastname, password);
+            customerID = rID.getUsersID(lastname, password);
         } while (!isValidId(customerID));
 
 
@@ -128,8 +133,8 @@ public class Testing {
     }
 
     private void getAllProductsFromOrder(){
-        orderID = r.getOrderID(datumOfOrder);
-        r.getProductsFromOrder(orderID);
+        orderID = rID.getOrderID(datumOfOrder);
+        rProduct.getProductsFromOrder(orderID);
     }
 
     public void addToCart(){
@@ -138,29 +143,29 @@ public class Testing {
     }
 
     public void selectProduct(int saldo){
-        r.getlistOfProductsDependingOnSaldo(saldo);
+        rProduct.getlistOfProductsDependingOnSaldo(saldo);
 
         do{
             System.out.println("\nFiltrera sökningen på färg, skriv in färgen");
             String answer = sc.nextLine();
-            colorID = r.getColorID(answer);
+            colorID = rID.getColorID(answer);
         }while (!(isValidId(colorID)));
-        filterList = r.filterProductsOnColor(colorID,saldo);
+        filterList = rProduct.filterProductsOnColor(colorID,saldo);
 
         if(filterList.size() > 2){
             do{
                 System.out.println("\nFiltrera sökningen på storlek, skriv in storlek");
                 String answer = sc.nextLine();
-                sizeID = r.getSizeID(answer);
+                sizeID = rID.getSizeID(answer);
             }while (!(isValidSizeIDForFilterColor(sizeID)));
         }
 
 
         do{
-            r.filterProductsOnColorAndSize(colorID,saldo,sizeID);
+            rProduct.filterProductsOnColorAndSize(colorID,saldo,sizeID);
             System.out.println("\nVälj en av produkterna, skriv in namnet");
             String answer = sc.nextLine();
-            productID = r.getProductID(answer);
+            productID = rID.getProductID(answer);
         } while (!isValidId(productID));
     }
 
@@ -168,11 +173,11 @@ public class Testing {
         do{
             System.out.println("Välj en av följande betyg? \n " + r.getlistOfGrades());
             String answer = sc.nextLine();
-            gradeID = r.getGradeID(answer);
+            gradeID = rID.getGradeID(answer);
         } while (!isValidId(gradeID));
     }
 
     public static void main(String[] args) {
-        Testing t = new Testing();
+        Dashboard t = new Dashboard();
     }
 }

@@ -1,3 +1,5 @@
+package Tables;
+
 /**
  * Created by Hanna Edlund
  * Date: 2021-02-22

@@ -1,3 +1,7 @@
+package Tables;
+
+import Tables.Products;
+
 import java.util.Date;
 
 /**

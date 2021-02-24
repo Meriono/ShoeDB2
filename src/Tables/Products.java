@@ -1,4 +1,4 @@
-import java.util.List;
+package Tables;
 
 /**
  * Created by Hanna Edlund

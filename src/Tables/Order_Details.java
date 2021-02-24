@@ -1,3 +1,5 @@
+package Tables;
+
 /**
  * Created by Hanna Edlund
  * Date: 2021-02-22
@@ -51,7 +53,7 @@ public class Order_Details {
 
     @Override
     public String toString() {
-        return "Order_Details{" +
+        return "Tables.Order_Details{" +
                 ", product=" + product.getName() +
                 ", färg:=" + getProduct().getColor() +
                 ", storlek:=" + product.getSize() +

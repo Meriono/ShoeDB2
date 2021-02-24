@@ -1,3 +1,9 @@
+package Tables;
+
+import Tables.Customers;
+import Tables.Gradings;
+import Tables.Products;
+
 /**
  * Created by Hanna Edlund
  * Date: 2021-02-22
