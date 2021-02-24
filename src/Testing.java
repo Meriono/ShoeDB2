@@ -23,6 +23,7 @@ public class Testing {
     String datumOfOrder;
     String aComment;
     List<String> listOfOrders = new ArrayList<>();
+    List<Products> filterList = new ArrayList<>();
 
 
     public Testing() {
@@ -108,6 +109,16 @@ public class Testing {
         else  return true;
     }
 
+    private boolean isValidSizeIDForFilterColor(int id){
+        int answer = (int) filterList.stream().filter(products -> products.getSize().getId() != id).count();
+
+        if(answer == filterList.size()){
+            System.out.println("Oj något gick fel, försök igen!");
+            return false;
+        }
+        return true;
+    }
+
     private boolean isValidDate(){
         if(!listOfOrders.contains(datumOfOrder)){
             System.out.println("Oj något gick fel, försök igen!");
@@ -127,24 +138,27 @@ public class Testing {
     }
 
     public void selectProduct(int saldo){
+        r.getlistOfProductsDependingOnSaldo(saldo);
+
         do{
-            r.getlistOfProductsDependingOnSaldo(saldo);
+            System.out.println("\nFiltrera sökningen på färg, skriv in färgen");
+            String answer = sc.nextLine();
+            colorID = r.getColorID(answer);
+        }while (!(isValidId(colorID)));
+        filterList = r.filterProductsOnColor(colorID,saldo);
 
-            do{
-                System.out.println("\nFiltrera sökningen på färg, skriv in färgen");
-                String answer = sc.nextLine();
-                colorID = r.getColorID(answer);
-            }while (!(isValidId(colorID)));
-            r.filterProductsOnColor(colorID,saldo);
-
+        if(filterList.size() > 2){
             do{
                 System.out.println("\nFiltrera sökningen på storlek, skriv in storlek");
                 String answer = sc.nextLine();
                 sizeID = r.getSizeID(answer);
-            }while (!(isValidId(sizeID)));
+            }while (!(isValidSizeIDForFilterColor(sizeID)));
+        }
 
+
+        do{
             r.filterProductsOnColorAndSize(colorID,saldo,sizeID);
-            System.out.println("Välj en av följande produkter? \n ");
+            System.out.println("\nVälj en av produkterna, skriv in namnet");
             String answer = sc.nextLine();
             productID = r.getProductID(answer);
         } while (!isValidId(productID));

@@ -282,7 +282,7 @@ public class Repository {
         });
     }
 
-    public void filterProductsOnColor(int colorID, int saldo){
+    public List<Products> filterProductsOnColor(int colorID, int saldo){
         List <Products> filterListOnColor = new ArrayList<>();
 
         try (Connection con = DriverManager.getConnection(p.getProperty("connectionString"),
@@ -322,6 +322,7 @@ public class Repository {
                 System.out.println((products.getName()+ " | Färg: "+ products.getColor().getColor() + " | Storlek: "+ products.getSize().getSize() + " | Märke: " + products.getBrand().getBrand() + " | Saldo: "+ products.getSaldo()));
 
         });
+        return filterListOnColor;
     }
 
 
